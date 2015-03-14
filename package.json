@@ -1,0 +1,35 @@
+{
+  "name": "koerper",
+  "version": "0.0.0",
+  "description": "A virtual DOM that implements body nodes",
+  "main": "koerper.js",
+  "scripts": {
+    "test": "jasminum test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gutentags/koerper.git"
+  },
+  "keywords": [
+    "dom",
+    "virtual",
+    "document",
+    "body"
+  ],
+  "author": "Kris Kowal <kris@cixar.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gutentags/koerper/issues"
+  },
+  "homepage": "https://github.com/gutentags/koerper",
+  "dependencies": {
+    "wizdom": "^1.0.0"
+  },
+  "devDependencies": {
+    "domenic": "0.0.0",
+    "jasminum": "^2.0.6"
+  },
+  "directories": {
+    "test": "test"
+  }
+}

@@ -32,7 +32,7 @@ document.
 The virtual document will control the content of the actual node.
 
 ```js
-var Document = require("koeper");
+var Document = require("koerper");
 var document = new Document(window.document.body);
 ```
 

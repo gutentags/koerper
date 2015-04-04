@@ -24,12 +24,13 @@ Document.prototype.Node = Node;
 Document.prototype.Element = Element;
 Document.prototype.TextNode = TextNode;
 Document.prototype.Body = Body;
+Document.prototype.OpaqueHtml = OpaqueHtml;
 
 Document.prototype.createBody = function () {
     return new this.Body(this);
 };
 
-Document.prototype.getActualElement = function () {
+Document.prototype.getActualParent = function () {
     return this.actualNode;
 };
 
@@ -46,8 +47,14 @@ Node.prototype.insertBefore = function insertBefore(childNode, nextSibling) {
         throw new Error("Can't insert before node that is not a child of parent");
     }
     BaseNode.prototype.insertBefore.call(this, childNode, nextSibling);
-    var actualNextSibling = nextSibling && nextSibling.getActualFirstNode();
-    this.getActualElement().insertBefore(childNode.actualNode, actualNextSibling || null);
+    var actualNextSibling;
+    if (nextSibling) {
+        actualNextSibling = nextSibling.getActualFirstChild();
+    }
+    if (this.parentNode) {
+        actualNextSibling = actualNextSibling || this.actualNode;
+    }
+    this.getActualParent().insertBefore(childNode.actualNode, actualNextSibling || null);
     childNode.inject();
     return childNode;
 };
@@ -57,7 +64,7 @@ Node.prototype.removeChild = function removeChild(childNode) {
         throw new Error("Can't remove child " + childNode);
     }
     childNode.extract();
-    this.getActualElement().removeChild(childNode.actualNode);
+    this.getActualParent().removeChild(childNode.actualNode);
     BaseNode.prototype.removeChild.call(this, childNode);
 };
 
@@ -89,11 +96,11 @@ Node.prototype.inject = function injectNode() { };
 
 Node.prototype.extract = function extractNode() { };
 
-Node.prototype.getActualElement = function () {
+Node.prototype.getActualParent = function () {
     return this.actualNode;
 };
 
-Node.prototype.getActualFirstNode = function () {
+Node.prototype.getActualFirstChild = function () {
     return this.actualNode;
 };
 
@@ -152,8 +159,8 @@ Body.prototype.nodeType = 13;
 Body.prototype.extract = function extract() {
     var body = this.actualBody;
     var lastChild = this.actualNode;
-    var parentNode = this.parentNode.getActualElement();
-    var at = this.getActualFirstNode();
+    var parentNode = this.parentNode.getActualParent();
+    var at = this.getActualFirstChild();
     var next;
     while (at && at !== lastChild) {
         next = at.nextSibling;
@@ -172,7 +179,7 @@ Body.prototype.inject = function inject() {
     }
     var body = this.actualBody;
     var lastChild = this.actualNode;
-    var parentNode = this.parentNode.getActualElement();
+    var parentNode = this.parentNode.getActualParent();
     var at = body.firstChild;
     var next;
     while (at) {
@@ -182,17 +189,17 @@ Body.prototype.inject = function inject() {
     }
 };
 
-Body.prototype.getActualElement = function () {
+Body.prototype.getActualParent = function () {
     if (this.parentNode) {
-        return this.parentNode.getActualElement();
+        return this.parentNode.getActualParent();
     } else {
         return this.actualBody;
     }
 };
 
-Body.prototype.getActualFirstNode = function () {
+Body.prototype.getActualFirstChild = function () {
     if (this.firstChild) {
-        return this.firstChild.getActualFirstNode();
+        return this.firstChild.getActualFirstChild();
     }
 };
 
@@ -211,11 +218,30 @@ Object.defineProperty(Body.prototype, "innerHTML", {
         if (this.parentNode) {
             this.extract();
             this.actualBody.innerHTML = html;
+            this.firstChild = this.lastChild = new OpaqueHtml(
+                this.ownerDocument,
+                this.actualBody
+            );
             this.inject();
-            return html;
         } else {
             this.actualBody.innerHTML = html;
+            this.firstChild = this.lastChild = new OpaqueHtml(
+                this.ownerDocument,
+                this.actualBody
+            );
         }
+        return html;
     }
 });
 
+function OpaqueHtml(ownerDocument, body) {
+    Node.call(this, ownerDocument);
+    this.actualFirstChild = body.firstChild;
+}
+
+OpaqueHtml.prototype = Object.create(Node.prototype);
+OpaqueHtml.prototype.constructor = OpaqueHtml;
+
+OpaqueHtml.prototype.getActualFirstChild = function getActualFirstChild() {
+    return this.actualFirstChild;
+};

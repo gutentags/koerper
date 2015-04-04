@@ -77,3 +77,69 @@ describe("greeting redux", function () {
     });
 });
 
+it("append to inner body", function () {
+    var body = document.createBody();
+    var content = document.createBody();
+
+    var open = document.createTextNode("(");
+    var close = document.createTextNode(")");
+    var dash = document.createTextNode("-");
+
+    body.appendChild(open);
+    body.appendChild(content);
+    body.appendChild(close);
+
+    content.appendChild(dash);
+
+    expect(body.innerHTML).toBe("(-)");
+});
+
+it("replace inner HTML", function () {
+    var body = document.createBody();
+    var content = document.createBody();
+
+    var open = document.createTextNode("(");
+    var close = document.createTextNode(")");
+    var dash = document.createTextNode("-");
+
+    body.appendChild(open);
+    body.appendChild(content);
+    body.appendChild(close);
+
+    content.extract();
+    content.actualBody.appendChild(document.actualDocument.createTextNode("|"));
+    content.inject();
+
+    expect(body.innerHTML).toBe("(|)");
+});
+
+it("replace inner HTML", function () {
+    var body = document.createBody();
+    var content = document.createBody();
+
+    var open = document.createTextNode("(");
+    var close = document.createTextNode(")");
+    var dash = document.createTextNode("-");
+
+    body.appendChild(open);
+    body.appendChild(content);
+    body.appendChild(close);
+
+    expect(content.parentNode).toBe(body);
+
+    content.extract();
+    content.actualBody.appendChild(document.actualDocument.createTextNode("|"));
+    content.firstChild = content.lastChild = new document.OpaqueHtml(document, content.actualBody);
+    content.inject();
+
+    expect(body.innerHTML).toBe("(|)");
+
+    content.extract();
+    content.actualBody.removeChild(content.actualBody.firstChild);
+    content.actualBody.appendChild(document.actualDocument.createTextNode("-"));
+    content.firstChild = content.lastChild = new document.OpaqueHtml(document, content.actualBody);
+    content.inject();
+
+    expect(body.innerHTML).toBe("(-)");
+});
+

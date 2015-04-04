@@ -52,7 +52,7 @@ Node.prototype.insertBefore = function insertBefore(childNode, nextSibling) {
         actualNextSibling = nextSibling.getActualFirstChild();
     }
     if (this.parentNode) {
-        actualNextSibling = actualNextSibling || this.actualNode;
+        actualNextSibling = actualNextSibling || this.getActualLastChild();
     }
     this.getActualParent().insertBefore(childNode.actualNode, actualNextSibling || null);
     childNode.inject();
@@ -102,6 +102,10 @@ Node.prototype.getActualParent = function () {
 
 Node.prototype.getActualFirstChild = function () {
     return this.actualNode;
+};
+
+Node.prototype.getActualLastChild = function () {
+    return this.actualNode.lastChild;
 };
 
 Object.defineProperty(Node.prototype, "innerHTML", {
@@ -201,6 +205,10 @@ Body.prototype.getActualFirstChild = function () {
     if (this.firstChild) {
         return this.firstChild.getActualFirstChild();
     }
+};
+
+Body.prototype.getActualLastChild = function () {
+    return this.actualNode;
 };
 
 Object.defineProperty(Body.prototype, "innerHTML", {

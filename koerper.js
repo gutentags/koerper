@@ -26,8 +26,8 @@ Document.prototype.TextNode = TextNode;
 Document.prototype.Body = Body;
 Document.prototype.OpaqueHtml = OpaqueHtml;
 
-Document.prototype.createBody = function () {
-    return new this.Body(this);
+Document.prototype.createBody = function (label) {
+    return new this.Body(this, label);
 };
 
 Document.prototype.getActualParent = function () {
@@ -47,14 +47,18 @@ Node.prototype.insertBefore = function insertBefore(childNode, nextSibling) {
         throw new Error("Can't insert before node that is not a child of parent");
     }
     BaseNode.prototype.insertBefore.call(this, childNode, nextSibling);
+    var actualParentNode = this.getActualParent();
     var actualNextSibling;
     if (nextSibling) {
         actualNextSibling = nextSibling.getActualFirstChild();
     }
-    if (this.parentNode) {
-        actualNextSibling = actualNextSibling || this.getActualLastChild();
+    if (!actualNextSibling) {
+        actualNextSibling = this.getActualNextSibling();
     }
-    this.getActualParent().insertBefore(childNode.actualNode, actualNextSibling || null);
+    if (actualNextSibling && actualNextSibling.parentNode !== actualParentNode) {
+        actualNextSibling = null;
+    }
+    actualParentNode.insertBefore(childNode.actualNode, actualNextSibling || null);
     childNode.inject();
     return childNode;
 };
@@ -104,8 +108,8 @@ Node.prototype.getActualFirstChild = function () {
     return this.actualNode;
 };
 
-Node.prototype.getActualLastChild = function () {
-    return this.actualNode.lastChild;
+Node.prototype.getActualNextSibling = function () {
+    return null;
 };
 
 Object.defineProperty(Node.prototype, "innerHTML", {
@@ -149,9 +153,10 @@ Object.defineProperty(TextNode.prototype, "data", {
 
 // if parentNode is null, the body is extracted
 // if parentNode is non-null, the body is inserted
-function Body(document) {
+function Body(document, label) {
     Node.call(this, document);
     this.actualNode = document.actualDocument.createTextNode("");
+    //this.actualNode = document.actualDocument.createComment(label || "");
     this.actualFirstChild = null;
     this.actualBody = document.actualDocument.createElement("BODY");
 }
@@ -207,7 +212,7 @@ Body.prototype.getActualFirstChild = function () {
     }
 };
 
-Body.prototype.getActualLastChild = function () {
+Body.prototype.getActualNextSibling = function () {
     return this.actualNode;
 };
 

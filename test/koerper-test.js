@@ -143,3 +143,108 @@ it("replace inner HTML", function () {
     expect(body.innerHTML).toBe("(-)");
 });
 
+it("complex nested structure", function () {
+    var body = document.createBody();
+        var table = document.createElement("table");
+        body.appendChild(table);
+            var thead = document.createElement("thead");
+            table.appendChild(thead);
+                var tr = document.createElement("tr");
+                thead.appendChild(tr);
+                    var th = document.createElement("th");
+                    tr.appendChild(th);
+                        th.appendChild(document.createTextNode("x"));
+                    var th = document.createElement("th");
+                    tr.appendChild(th);
+                        th.appendChild(document.createTextNode("A"));
+                    var th = document.createElement("th");
+                    tr.appendChild(th);
+                        th.appendChild(document.createTextNode("B"));
+            var tbody = document.createElement("tbody");
+            table.appendChild(tbody);
+                var tr = document.createElement("tr");
+                tbody.appendChild(tr);
+                    var th = document.createElement("th");
+                    tr.appendChild(th);
+                        th.appendChild(document.createTextNode("1"));
+                    var td = document.createElement("td");
+                    tr.appendChild(td);
+                        td.appendChild(document.createTextNode("A1"));
+                    var td = document.createElement("td");
+                    tr.appendChild(td);
+                        td.appendChild(document.createTextNode("B1"));
+                var tr = document.createElement("tr");
+                tbody.appendChild(tr);
+                    var th = document.createElement("th");
+                    tr.appendChild(th);
+                        th.appendChild(document.createTextNode("2"));
+                    var td = document.createElement("td");
+                    tr.appendChild(td);
+                        td.appendChild(document.createTextNode("A2"));
+                    var td = document.createElement("td");
+                    tr.appendChild(td);
+                        td.appendChild(document.createTextNode("B2"));
+    expect(body.innerHTML).toBe(
+        "<table>" +
+            "<thead><tr><th>x</th><th>A</th><th>B</th></tr></thead>" +
+            "<tbody>" +
+                "<tr><th>1</th><td>A1</td><td>B1</td></tr>" +
+                "<tr><th>2</th><td>A2</td><td>B2</td></tr>" +
+            "</tbody>" +
+        "</table>"
+    );
+});
+
+it("complex nested structure assembled out of order", function () {
+    var body = document.createBody();
+        var table = document.createElement("table");
+        body.appendChild(table);
+            var thead = document.createElement("thead");
+            table.appendChild(thead);
+                var theadTr = document.createElement("tr");
+                thead.appendChild(theadTr);
+                    var corner = document.createElement("th");
+                    theadTr.appendChild(corner);
+                        corner.appendChild(document.createTextNode("x"));
+                    var thA = document.createElement("th");
+                        thA.appendChild(document.createTextNode("A"));
+                    var thB = document.createElement("th");
+                        thB.appendChild(document.createTextNode("B"));
+            var tbody = document.createElement("tbody");
+            table.appendChild(tbody);
+                var tr = document.createElement("tr");
+                tbody.appendChild(tr);
+                    var th = document.createElement("th");
+                    tr.appendChild(th);
+                        th.appendChild(document.createTextNode("1"));
+                    var td = document.createElement("td");
+                    tr.appendChild(td);
+                        td.appendChild(document.createTextNode("A1"));
+                    var td = document.createElement("td");
+                    tr.appendChild(td);
+                        td.appendChild(document.createTextNode("B1"));
+                var tr = document.createElement("tr");
+                tbody.appendChild(tr);
+                    var th = document.createElement("th");
+                    tr.appendChild(th);
+                        th.appendChild(document.createTextNode("2"));
+                    var td = document.createElement("td");
+                    tr.appendChild(td);
+                        td.appendChild(document.createTextNode("A2"));
+                    var td = document.createElement("td");
+                    tr.appendChild(td);
+                        td.appendChild(document.createTextNode("B2"));
+
+                    theadTr.appendChild(thB);
+                    theadTr.insertBefore(thA, thB);
+
+    expect(body.innerHTML).toBe(
+        "<table>" +
+            "<thead><tr><th>x</th><th>A</th><th>B</th></tr></thead>" +
+            "<tbody>" +
+                "<tr><th>1</th><td>A1</td><td>B1</td></tr>" +
+                "<tr><th>2</th><td>A2</td><td>B2</td></tr>" +
+            "</tbody>" +
+        "</table>"
+    );
+});

@@ -80,9 +80,9 @@ And you can insert or remove the body within another body.
 
 ```js
 var quoted = document.createBody();
-quoted.appendChild(document.createTextNode("\\""));
+quoted.appendChild(document.createTextNode("\""));
 quoted.appendChild(body);
-quoted.appendChild(document.createTextNode("\\""));
+quoted.appendChild(document.createTextNode("\""));
 
 // later ...
 quoted.removeChild(body);
